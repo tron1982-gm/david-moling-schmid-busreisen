@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schmid Busreisen — Bildfeedback</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --surface:#f7f7f8;
+    --border:#e4e4e7;
+    --text:#141414;
+    --text-muted:#6b6b70;
+    --accent:#5b3df0;
+    --accent-soft:#efeaff;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 40px;
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:0;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(6px);
+    z-index:10;
+  }
+  header .title{
+    display:flex;
+    flex-direction:column;
+  }
+  header .title h1{
+    font-size:18px;
+    font-weight:600;
+    margin:0;
+  }
+  header .title p{
+    font-size:13px;
+    color:var(--text-muted);
+    margin:2px 0 0 0;
+  }
+  header img.logo{
+    height:26px;
+  }
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:32px 40px 80px;
+  }
+  .intro{
+    font-size:14px;
+    color:var(--text-muted);
+    max-width:680px;
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+  .progress{
+    font-size:13px;
+    color:var(--text-muted);
+    margin-bottom:32px;
+    padding:10px 14px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:8px;
+    display:inline-block;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+  }
+  .card{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:280px 1fr;
+  }
+  .card.done{
+    border-color:var(--accent);
+  }
+  .card .thumb{
+    background:var(--surface);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
+  .card .thumb img{
+    max-width:100%;
+    max-height:220px;
+    border-radius:6px;
+    display:block;
+  }
+  .card .content{
+    padding:20px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .card .filename{
+    font-size:12px;
+    color:var(--text-muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+  }
+  .toggle-row label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+    color:var(--text);
+  }
+  .toggle-row input[type="checkbox"]{
+    width:16px;
+    height:16px;
+    accent-color:var(--accent);
+  }
+  .tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .tag{
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    cursor:pointer;
+    color:var(--text);
+    user-select:none;
+    transition:background .12s, border-color .12s, color .12s;
+  }
+  .tag.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  textarea{
+    width:100%;
+    min-height:70px;
+    resize:vertical;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:13px;
+    font-family:inherit;
+    color:var(--text);
+    background:#fff;
+  }
+  textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+  }
+  footer{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 40px 60px;
+  }
+  .submit-bar{
+    position:sticky;
+    bottom:0;
+    background:rgba(255,255,255,0.95);
+    backdrop-filter:blur(6px);
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    align-items:center;
+    padding:16px 40px;
+    margin:0 -40px;
+  }
+  button.primary{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:12px 22px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  button.primary:hover{
+    opacity:.9;
+  }
+  .saved-note{
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  @media (max-width:640px){
+    header{padding:16px 20px;}
+    main{padding:24px 20px 100px;}
+    .card{grid-template-columns:1fr;}
+    .card .thumb img{max-height:180px;}
+    .submit-bar{padding:16px 20px;margin:0 -20px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <h1>Schmid Busreisen — Bildreview</h1>
+    <p id="countLabel">Alle Bilder der Website</p>
+  </div>
+  <img class="logo" src="https://nfbrands.xyz/images/logo.svg" alt="NFBrands.X">
+</header>
+
+<main>
+  <p class="intro">
+    Bitte pro Bild angeben, was geändert werden soll. Wo relevant, das Feld „größere Version gewünscht“ aktivieren —
+    die Originale liegen aktuell in Website-Auflösung vor; wir prüfen dann, ob eine höher auflösende Version verfügbar ist.
+  </p>
+  <div class="progress" id="progressNote">0 von 43 Bildern bearbeitet</div>
+
+  <div class="grid" id="imageGrid"></div>
+</main>
+
+<div class="submit-bar">
+  <span class="saved-note" id="savedNote"></span>
+  <button class="primary" onclick="exportFeedback()">Feedback exportieren (JSON)</button>
+</div>
+
+<script>
+  // Bilddatensatz — automatisch aus den Projektordnern "Bilder der Website" und "team"
+  const images = [
+    { file: "Bilder der Website/hero-bus-real.webp", label: "Hero-Bild Startseite — Alpenpanorama mit Bus" },
+    { file: "Bilder der Website/hero.webp", label: "Hero-Bild (Variante)" },
+    { file: "Bilder der Website/hero-bus-taxi.webp", label: "Hero-Bild Bus & Taxi" },
+    { file: "Bilder der Website/about-bg-4.webp", label: "Hintergrund — Über uns" },
+    { file: "Bilder der Website/story1.webp", label: "Firmengeschichte — historische Aufnahme" },
+    { file: "Bilder der Website/story2.webp", label: "Firmengeschichte — moderne Busflotte" },
+    { file: "Bilder der Website/ueberuns_1.webp", label: "Panorama — Über uns" },
+
+    { file: "team/1.webp", label: "Team — Jürgen Schmid, Geschäftsführer" },
+    { file: "team/2.webp", label: "Team — Bianca Schmid, Büro & Organisation" },
+    { file: "team/3.webp", label: "Team — Thomas Müller, Fahrer" },
+    { file: "team/4.webp", label: "Team — Martin Weber, Werkstatt" },
+
+    { file: "Bilder der Website/cycling-shuttle.webp", label: "Bikeshuttle — Hintergrundbild" },
+    { file: "Bilder der Website/cycling-shuttle2.webp", label: "Bikeshuttle — Hintergrundbild (Variante 2)" },
+    { file: "Bilder der Website/bikeshuttle-bus.webp", label: "Bikeshuttle — Bus" },
+    { file: "Bilder der Website/bikeshuttle-trailer.webp", label: "Bikeshuttle — Radanhänger" },
+    { file: "Bilder der Website/etschradweg.webp", label: "Etschradweg — Radshuttle" },
+    { file: "Bilder der Website/innradweg.webp", label: "Innradweg — Radshuttle" },
+    { file: "Bilder der Website/e5transfer.webp", label: "E5 Fernwanderweg — Transfer" },
+    { file: "Bilder der Website/hiking-trail.webp", label: "Wanderweg — Hintergrundbild" },
+    { file: "Bilder der Website/shuttle3.webp", label: "Shuttle — Sammelbus" },
+
+    { file: "Bilder der Website/image-1.webp", label: "E5 Galerie — Bild 1" },
+    { file: "Bilder der Website/image-2.webp", label: "E5 Galerie — Bild 2" },
+    { file: "Bilder der Website/image-3.webp", label: "E5 Galerie — Bild 3" },
+    { file: "Bilder der Website/image_4.jpg", label: "E5 Galerie — Bild 4" },
+    { file: "Bilder der Website/image-5.webp", label: "E5 Galerie — Bild 5" },
+    { file: "Bilder der Website/image-6.webp", label: "E5 Galerie — Bild 6" },
+    { file: "Bilder der Website/image-7.webp", label: "E5 Galerie — Bild 7" },
+
+    { file: "Bilder der Website/upload-gallery-3_29.webp", label: "Galerie — Fahrzeugkonvoi Bergwiese" },
+    { file: "Bilder der Website/upload-gallery-8_34.webp", label: "Galerie — Bus in Bergwiese" },
+    { file: "Bilder der Website/upload-gallery-22_48.webp", label: "Galerie — Fahrzeugkolonne" },
+
+    { file: "Bilder der Website/bus-service.webp", label: "Bus & Taxi — Hintergrundbild" },
+    { file: "Bilder der Website/bus-service2.webp", label: "Bus & Taxi — Hintergrundbild (Variante 2)" },
+    { file: "Bilder der Website/taxi-nauders.webp", label: "Taxi Nauders" },
+    { file: "Bilder der Website/taxi-hotel.webp", label: "Taxi — Hotelabholung" },
+    { file: "Bilder der Website/taxi-scenic.webp", label: "Taxi — Landschaftsfahrt" },
+    { file: "Bilder der Website/taxi-ski-real.webp", label: "Taxi — Ski-Transfer" },
+    { file: "Bilder der Website/flughafentransfer.webp", label: "Flughafentransfer" },
+    { file: "Bilder der Website/serfaus-fiss-ladis.webp", label: "Serfaus-Fiss-Ladis — Transfer" },
+    { file: "Bilder der Website/gruppenfahrten.webp", label: "Gruppenfahrten" },
+    { file: "Bilder der Website/vereinsausfluege.webp", label: "Vereins- & Betriebsausflüge" },
+    { file: "Bilder der Website/schulausfluege.webp", label: "Schulausflüge" },
+    { file: "Bilder der Website/tagesfahrten.webp", label: "Tagesfahrten & Wochenausflüge" },
+
+    { file: "Bilder der Website/werkstatt.webp", label: "Werkstatt — Hintergrundbild" },
+
+    { file: "Bilder der Website/reisebuero.webp", label: "Reisebüro — Hintergrundbild" },
+    { file: "Bilder der Website/reisebuero_1.webp", label: "Reisebüro — Panorama" }
+  ];
+
+  const tagOptions = ["Auflösung", "Color Grading", "Motiv/Bildausschnitt", "Bildqualität", "Ersetzen", "Sonstiges"];
+
+  const grid = document.getElementById("imageGrid");
+  document.getElementById("countLabel").textContent = images.length + " Bilder der Website";
+  document.getElementById("progressNote").textContent = "0 von " + images.length + " Bildern bearbeitet";
+
+  images.forEach((img, idx) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.id = idx;
+
+    card.innerHTML = `
+      <div class="thumb">
+        <img src="${encodeURI(img.file)}" alt="${img.label}" loading="lazy">
+      </div>
+      <div class="content">
+        <div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px;">${img.label}</div>
+          <div class="filename">${img.file}</div>
+        </div>
+
+        <div class="toggle-row">
+          <label>
+            <input type="checkbox" class="larger-toggle" data-id="${idx}">
+            Größere Version gewünscht / prüfen
+          </label>
+        </div>
+
+        <div class="tags" data-id="${idx}">
+          ${tagOptions.map(t => `<span class="tag" data-tag="${t}">${t}</span>`).join("")}
+        </div>
+
+        <textarea placeholder="Was soll konkret geändert werden? (z. B. Farbstich, Bildausschnitt, Ersatzmotiv, Freigabe)" data-id="${idx}"></textarea>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  function updateProgress() {
+    let touched = 0;
+    images.forEach((img, idx) => {
+      const larger = document.querySelector(`.larger-toggle[data-id="${idx}"]`).checked;
+      const tags = document.querySelectorAll(`.tags[data-id="${idx}"] .tag.active`).length > 0;
+      const comment = document.querySelector(`textarea[data-id="${idx}"]`).value.trim().length > 0;
+      const isDone = larger || tags || comment;
+      document.querySelector(`.card[data-id="${idx}"]`).classList.toggle("done", isDone);
+      if (isDone) touched++;
+    });
+    document.getElementById("progressNote").textContent = touched + " von " + images.length + " Bildern bearbeitet";
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("tag")) {
+      e.target.classList.toggle("active");
+      updateProgress();
+    }
+  });
+  document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("larger-toggle")) updateProgress();
+  });
+  document.addEventListener("input", (e) => {
+    if (e.target.tagName === "TEXTAREA") updateProgress();
+  });
+
+  function exportFeedback() {
+    const result = images.map((img, idx) => {
+      const largerChecked = document.querySelector(`.larger-toggle[data-id="${idx}"]`).checked;
+      const activeTags = Array.from(document.querySelectorAll(`.tags[data-id="${idx}"] .tag.active`)).map(t => t.dataset.tag);
+      const comment = document.querySelector(`textarea[data-id="${idx}"]`).value.trim();
+      return {
+        datei: img.file,
+        beschreibung: img.label,
+        groessere_version_gewuenscht: largerChecked,
+        kategorien: activeTags,
+        kommentar: comment
+      };
+    });
+
+    const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "schmid-bildfeedback.json";
+    a.click();
+    URL.revokeObjectURL(url);
+
+    document.getElementById("savedNote").textContent = "Feedback als JSON exportiert — " + new Date().toLocaleTimeString("de-AT");
+  }
+</script>
+
+</body>
+</html>
