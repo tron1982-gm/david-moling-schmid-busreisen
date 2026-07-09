@@ -281,7 +281,8 @@
     gap:12px;
     align-items:center;
     padding:16px 40px;
-    margin:0 -40px;
+    width:100%;
+    box-sizing:border-box;
   }
   button.primary{
     background:var(--accent);
@@ -440,7 +441,7 @@
 <div class="submit-bar">
   <span class="saved-note" id="savedNote"></span>
   <button class="edit-btn" style="display:inline-block;" onclick="exportFeedback()">JSON herunterladen</button>
-  <button class="primary" id="sendBtn" onclick="sendFeedback()">Feedback an Designer senden</button>
+  <button class="primary" id="sendBtn" onclick="sendFeedback()">Feedback absenden</button>
 </div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -476,7 +477,7 @@
       <div class="contact-line">
         <a href="mailto:wagmi@nfbrands.xyz">wagmi@nfbrands.xyz</a> · <a href="tel:+4369917181969">+43 699 17181969</a>
       </div>
-      <div class="legal">© 2022 - 2025 by NFBrands.X GmbH</div>
+      <div class="legal">© 2022 - 2026 by NFBrands.X GmbH</div>
     </div>
     <img class="footer-logo" src="https://nfbrands.xyz/images/logo.svg" alt="NFBrands.X">
   </div>
