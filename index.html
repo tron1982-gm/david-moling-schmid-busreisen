@@ -16,8 +16,13 @@
     --radius:10px;
   }
   *{box-sizing:border-box;}
-  body{
+  html, body{
     margin:0;
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+  body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
     background:var(--bg);
     color:var(--text);
@@ -73,15 +78,13 @@
   }
   .site-footer{
     width:100%;
-    border-top:1px solid var(--border);
-    background:var(--surface);
-    padding:32px 40px;
+    background:#141414;
     margin-top:40px;
-    box-sizing:border-box;
   }
   .site-footer .footer-inner{
     max-width:1100px;
     margin:0 auto;
+    padding:48px 40px 40px;
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
@@ -89,48 +92,65 @@
     flex-wrap:wrap;
   }
   .site-footer .footer-logo{
-    height:22px;
-    filter:brightness(0) saturate(100%);
-    opacity:.85;
+    height:24px;
+    filter:brightness(0) invert(1);
     flex-shrink:0;
   }
   .site-footer h3{
     font-size:13px;
     font-weight:600;
-    margin:0 0 10px 0;
+    margin:0 0 14px 0;
+    color:#fff;
+    text-transform:lowercase;
+    letter-spacing:.02em;
   }
   .site-footer .offices{
     display:flex;
-    gap:32px;
+    gap:48px;
     flex-wrap:wrap;
   }
   .site-footer .office{
-    font-size:12px;
-    color:var(--text-muted);
-    line-height:1.6;
+    font-size:13px;
+    color:rgba(255,255,255,0.6);
+    line-height:1.7;
   }
   .site-footer .office-title{
-    color:var(--text);
+    color:#fff;
     font-weight:600;
     margin-bottom:2px;
   }
   .site-footer .contact-line{
-    font-size:12px;
-    color:var(--text-muted);
-    margin-top:16px;
+    font-size:13px;
+    color:rgba(255,255,255,0.6);
+    margin-top:24px;
   }
   .site-footer .contact-line a{
-    color:var(--accent);
-    text-decoration:none;
+    color:#fff;
+    text-decoration:underline;
   }
-  .site-footer .legal{
-    font-size:11px;
-    color:var(--text-muted);
-    margin-top:16px;
-    opacity:.75;
+  .site-footer .legal-bar{
+    width:100%;
+    background:linear-gradient(90deg, #d6336c 0%, #7048e8 50%, #1c7ed6 100%);
+  }
+  .site-footer .legal-bar-inner{
+    max-width:1100px;
+    margin:0 auto;
+    padding:14px 40px;
+    font-size:12px;
+    color:#fff;
+  }
+  .form-actions{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 40px 40px;
+    display:flex;
+    gap:12px;
+    align-items:center;
   }
   @media (max-width:640px){
-    .site-footer{padding:24px 20px;}
+    .site-footer .footer-inner{padding:32px 20px;}
+    .site-footer .legal-bar-inner{padding:12px 20px;}
+    .form-actions{padding:0 20px 32px;}
   }
   main{
     max-width:1100px;
@@ -265,25 +285,6 @@
     outline:none;
     border-color:var(--accent);
   }
-  footer{
-    max-width:1100px;
-    margin:0 auto;
-    padding:0 40px 60px;
-  }
-  .submit-bar{
-    position:sticky;
-    bottom:0;
-    background:rgba(255,255,255,0.95);
-    backdrop-filter:blur(6px);
-    border-top:1px solid var(--border);
-    display:flex;
-    justify-content:flex-end;
-    gap:12px;
-    align-items:center;
-    padding:16px 40px;
-    width:100%;
-    box-sizing:border-box;
-  }
   button.primary{
     background:var(--accent);
     color:#fff;
@@ -402,7 +403,6 @@
     main{padding:24px 20px 100px;}
     .card{grid-template-columns:1fr;}
     .card .thumb img{max-height:180px;}
-    .submit-bar{padding:16px 20px;margin:0 -20px;}
   }
 </style>
 </head>
@@ -438,10 +438,10 @@
   <div class="grid" id="imageGrid"></div>
 </main>
 
-<div class="submit-bar">
-  <span class="saved-note" id="savedNote"></span>
+<div class="form-actions">
   <button class="edit-btn" style="display:inline-block;" onclick="exportFeedback()">JSON herunterladen</button>
   <button class="primary" id="sendBtn" onclick="sendFeedback()">Feedback absenden</button>
+  <span class="saved-note" id="savedNote"></span>
 </div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -475,11 +475,13 @@
         </div>
       </div>
       <div class="contact-line">
-        <a href="mailto:wagmi@nfbrands.xyz">wagmi@nfbrands.xyz</a> · <a href="tel:+4369917181969">+43 699 17181969</a>
+        <a href="mailto:wagmi@nfbrands.xyz">wagmi@nfbrands.xyz</a> &nbsp;|&nbsp; <a href="tel:+4369917181969">+43 699 17181969</a>
       </div>
-      <div class="legal">© 2022 - 2026 by NFBrands.X GmbH</div>
     </div>
     <img class="footer-logo" src="https://nfbrands.xyz/images/logo.svg" alt="NFBrands.X">
+  </div>
+  <div class="legal-bar">
+    <div class="legal-bar-inner">© 2022 - 2026 by NFBrands.X GmbH</div>
   </div>
 </footer>
 
