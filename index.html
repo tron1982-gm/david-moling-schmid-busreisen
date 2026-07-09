@@ -350,7 +350,8 @@
 
 <div class="submit-bar">
   <span class="saved-note" id="savedNote"></span>
-  <button class="primary" onclick="exportFeedback()">Feedback exportieren (JSON)</button>
+  <button class="edit-btn" style="display:inline-block;" onclick="exportFeedback()">JSON herunterladen</button>
+  <button class="primary" id="sendBtn" onclick="sendFeedback()">Feedback an Designer senden</button>
 </div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
@@ -572,9 +573,9 @@
     if (e.key === "Escape") document.getElementById("lightbox").classList.remove("open");
   });
 
-  function exportFeedback() {
+  function buildFeedbackResult() {
     const store = loadStore();
-    const result = images.map(img => {
+    return images.map(img => {
       const entry = store[img.file] || {};
       return {
         datei: img.file,
@@ -585,7 +586,10 @@
         gespeichert: !!entry.gespeichert
       };
     });
+  }
 
+  function exportFeedback() {
+    const result = buildFeedbackResult();
     const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -594,7 +598,59 @@
     a.click();
     URL.revokeObjectURL(url);
 
-    document.getElementById("savedNote").textContent = "Feedback als JSON exportiert — " + new Date().toLocaleTimeString("de-AT");
+    document.getElementById("savedNote").textContent = "JSON heruntergeladen — " + new Date().toLocaleTimeString("de-AT");
+  }
+
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/mwvdddwd";
+
+  async function sendFeedback() {
+    const result = buildFeedbackResult();
+    const savedCount = result.filter(r => r.gespeichert).length;
+
+    if (savedCount === 0) {
+      document.getElementById("savedNote").textContent = "Bitte zuerst mindestens ein Bild mit „Speichern“ bestätigen.";
+      return;
+    }
+
+    const btn = document.getElementById("sendBtn");
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Wird gesendet …";
+
+    // Kompakte Textzusammenfassung fürs E-Mail-Postfach, plus vollständiges JSON als Rohdaten
+    const summaryLines = result
+      .filter(r => r.gespeichert)
+      .map(r => {
+        const parts = [];
+        if (r.groessere_version_gewuenscht) parts.push("größere Version gewünscht");
+        if (r.kategorien.length) parts.push("Kategorien: " + r.kategorien.join(", "));
+        if (r.kommentar) parts.push("Kommentar: " + r.kommentar);
+        return "• " + r.datei + " (" + r.beschreibung + ")\n  " + (parts.join(" | ") || "keine weiteren Angaben");
+      })
+      .join("\n\n");
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          betreff: "Schmid Busreisen — Bildfeedback (" + savedCount + " von " + images.length + " Bildern)",
+          zusammenfassung: summaryLines,
+          rohdaten_json: JSON.stringify(result, null, 2)
+        })
+      });
+
+      if (response.ok) {
+        document.getElementById("savedNote").textContent = "Feedback erfolgreich gesendet — " + new Date().toLocaleTimeString("de-AT");
+      } else {
+        document.getElementById("savedNote").textContent = "Senden fehlgeschlagen. Bitte JSON herunterladen und manuell schicken.";
+      }
+    } catch (err) {
+      document.getElementById("savedNote").textContent = "Senden fehlgeschlagen (keine Verbindung). Bitte JSON herunterladen und manuell schicken.";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
   }
 </script>
 
